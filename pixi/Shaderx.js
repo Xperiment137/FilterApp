@@ -44,12 +44,10 @@ reader.readAsDataURL(input.files[0]);
                 
 
                 reader.onload = function (e) {
-                    $('#image')
+                   
 
-                        .attr('src', e.target.result)
-                        .width(0)
-                        .height(0)
-                    
+                         document.getElementById("image").src = reader.result;
+                      
 
                 };
                 reader.readAsDataURL(input.files[0]);
