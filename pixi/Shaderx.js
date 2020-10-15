@@ -3,15 +3,18 @@
 let app = new PIXI.Application({ 
         width:1000,
         height:1000,
-        antialias: true, 
+        antialias: false, 
         transparent: true, 
         forceCanvas: false,
         autoResize: true,
         legacy: true,
+
        
 
     }
     );
+ PIXI.BLEND_MODES["MULTIPLY"];
+ PIXI.RENDERER_TYPE["WEBGL"];
 function resize() {app.renderer.view.style.position = 'absolute';app.renderer.view.style.left = ((window.innerWidth - app.renderer.width) >> 1) + 'px';app.renderer.view.style.top = ((window.innerHeight - app.renderer.height) >> 1) + 'px';} resize();
 window.addEventListener('resize', resize);
 app.renderer.view.width =1000;
@@ -43,13 +46,11 @@ function Animados()
     }else{
         animate=true;
         alert("Filtros animados activados");
-        alert("Los filtros animados aun no funcionan del todo bien en moviles o en imagenes con filtros ya aplicados, usar con precaucion");
         if(sprite != null)
         {
-            alert("Se debe recargar la pagina para cambiar de modo");
-              location.reload();
+            
         }
-        LoadAnimateFilter();
+       
     }
     modo();
 }
@@ -62,12 +63,12 @@ modo();
     if(sprite!=null)
         {
         PIXI.loader.reset();
-        sprite.filters = null;
+        app.stage.filters = null;
            delete PIXI.loader.resources['shader'];
              if(animate)
             {
-                alert("Para activar la animacion se debe recargar la pagina cada vez que se use un filtro")
-                location.reload();
+               
+                LoadAnimateFilter();
            }else{
         LoadFilter();
     }
@@ -77,13 +78,14 @@ modo();
                 }else if(tipo.includes("image"))
                 { 
                 
-                   IsImage();
+               IsImage();
+                
                 }
         }else{
          if(animate)
          {
-            alert("Los filtros animados aun no funcionan del todo bien en moviles o en imagenes con filtros ya aplicados, usar con precaucion");
-            
+           
+          LoadAnimateFilter();
         }else{
            LoadFilter();
         }
@@ -92,12 +94,9 @@ modo();
                  IsVideo();
                 }else if(tipo.includes("image"))
                 { 
-                if(animate)
-                {
-                   IsImageAnimate();
-                }else{
+                
                IsImage();
-                }
+                
                 } 
         }
      
@@ -203,7 +202,7 @@ function onload()
 app.render()
 if(filter != null)
  {
-  sprite.filters = [filter];
+   app.stage.filters = [filter];
 }else
 {
     alert("No se ha cargado un filtro");
@@ -267,7 +266,7 @@ video.src = srcvideo;
  sprite = PIXI.Sprite.from(video)
  if(filter != null)
  {
-  sprite.filters = [filter];
+  app.stage.filters = [filter];
 }else
 {
     alert("No se ha cargado un filtro");
@@ -318,7 +317,7 @@ imagen.crossOrigin = 'anonymous'
  sprite.height = 800;
   if(filter != null)
  {
-  sprite.filters = [filter];
+ app.stage.filters = [filter];
 }else
 {
     alert("No se ha cargado un filtro");
@@ -336,19 +335,19 @@ function LoadAnimateFilter()
     }else
     {
     app.stop();
+ PIXI.loader.add(imagen.src);
  PIXI.loader.add('shader', './Shaders/' + word).load(onLoaded);
 // Handle the load completed
 function onLoaded(loader, res) {
     // Create the new filter, arguments: (vertexShader, framentSource)
     filter = new PIXI.Filter(null, res.shader.data);
-    alert("Filtro cargado");
     // Add the filter
   let width = window.innerWidth;
   let height = window.innerHeight;
     filter.uniforms.u_resolution= [width, height];
     filter.uniforms.u_time = [1.0];  
     app.ticker.add(function(delta) {
-    filter.uniforms.u_time[0] += 0.01;  // Change time to animate the transition of red 
+    filter.uniforms.u_time[0] += 0.05;  // Change time to animate the transition of red 
 });
 
 }
