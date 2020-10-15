@@ -342,8 +342,8 @@ function onLoaded(loader, res) {
     // Create the new filter, arguments: (vertexShader, framentSource)
     filter = new PIXI.Filter(null, res.shader.data);
     // Add the filter
-  let width = window.innerWidth;
-  let height = window.innerHeight;
+  let width = app.renderer.view.width;
+  let height = app.renderer.view.height;
     filter.uniforms.u_resolution= [width, height];
     filter.uniforms.u_time = [1.0];  
     app.ticker.add(function(delta) {
