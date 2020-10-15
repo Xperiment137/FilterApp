@@ -7,6 +7,7 @@ let app = new PIXI.Application({
         transparent: true, 
         forceCanvas: false,
         autoResize: true,
+        legacy: true,
        
 
     }
@@ -16,13 +17,104 @@ window.addEventListener('resize', resize);
 app.renderer.view.width =1000;
 app.renderer.view.height =1000;
 document.body.appendChild(app.view);
-var sprite;
+var sprite=null;
 var fin = false;
-var tipo;
+var tipo = null;
  var i = 0;
  var word = null;
  var filter = null;
  var  srcvideo,srcimagen;
+ var imagen;
+ var animate = false;
+let filtros =["Brillo.frag","Escaner.frag","Tierra.frag","Pixel.frag","Llama.frag","Glitch1.frag","Glitch2.frag","Disformidad.frag","RedStorm.frag","RedStorm2.frag","RedStorm3.frag"];
+
+function MoveFilters()
+{
+    document.getElementById("filtro").innerHTML = "Filtro:" + filtros[i];
+    word = filtros[i];
+}
+
+function Animados()
+{
+    if(animate)
+    {
+        animate=false;
+        alert("Filtros animados desactivados");
+    }else{
+        animate=true;
+        alert("Filtros animados activados");
+        alert("Los filtros animados aun no funcionan del todo bien en moviles o en imagenes con filtros ya aplicados, usar con precaucion");
+        if(sprite != null)
+        {
+            alert("Se debe recargar la pagina para cambiar de modo");
+              location.reload();
+        }
+        LoadAnimateFilter();
+    }
+    modo();
+}
+MoveFilters();
+modo();
+ function NextFiltro()
+ {
+  
+   
+    if(sprite!=null)
+        {
+        PIXI.loader.reset();
+        sprite.filters = null;
+           delete PIXI.loader.resources['shader'];
+             if(animate)
+            {
+                alert("Para activar la animacion se debe recargar la pagina cada vez que se use un filtro")
+                location.reload();
+           }else{
+        LoadFilter();
+    }
+        if(tipo.includes("video"))
+                {  
+                 IsVideo();
+                }else if(tipo.includes("image"))
+                { 
+                
+                   IsImage();
+                }
+        }else{
+         if(animate)
+         {
+            alert("Los filtros animados aun no funcionan del todo bien en moviles o en imagenes con filtros ya aplicados, usar con precaucion");
+            
+        }else{
+           LoadFilter();
+        }
+        if(tipo.includes("video"))
+                {  
+                 IsVideo();
+                }else if(tipo.includes("image"))
+                { 
+                if(animate)
+                {
+                   IsImageAnimate();
+                }else{
+               IsImage();
+                }
+                } 
+        }
+     
+ }
+ function modo()
+ {
+    var aux;
+    if(animate == false)
+    {
+aux = "Normal";
+    }else{
+aux = "Animado";
+        }
+    
+     document.getElementById("mod").innerHTML = "Modo Filtros:" + aux;
+    
+ }
 
 function readURL(input) {
             if (input.files && input.files[0]) {
@@ -53,15 +145,8 @@ reader.readAsDataURL(input.files[0]);
                 reader.readAsDataURL(input.files[0]);
             }
                
-                 
-                if(tipo.includes("video"))
-                {  
-                 IsVideo();
-                }else if(tipo.includes("image"))
-                {
-
-                   IsImage();
-                }
+             imagen =  document.getElementById("image");
+              NextFiltro();
                
             }
         }
@@ -70,20 +155,26 @@ reader.readAsDataURL(input.files[0]);
 function Next()
 {
    
-    let filtros =["Brillo.frag","Escaner.frag","Tierra.frag","Pixel.frag","Llama.frag","Glitch1.frag","Glitch2.frag"];
     if(i==filtros.length-1)
     {
+        
         i = 0;
         
     }else
     {
+      
         i++;
        
     }
-    word = filtros[i];
-   document.getElementById("filtro").innerHTML = "Filtro:" + filtros[i];
-  
-
+    if(tipo == null)
+    {
+        MoveFilters();
+    }else{
+        MoveFilters();
+        NextFiltro();
+    }
+    
+   
 
     }
 
@@ -91,6 +182,7 @@ function setImageVisible(id, visible) {
     var img = document.getElementById(id);
     img.style.visibility = (visible ? 'visible' : 'hidden');
 }
+
 function DescargarVideo(sprite, fileName) {
     app.renderer.extract.canvas(app.stage).toBlob(function(b){
         var a = document.createElement('a');
@@ -100,6 +192,23 @@ function DescargarVideo(sprite, fileName) {
         a.click();
         a.remove();
     }, 'video/MP4');
+}
+function onload()
+{
+    
+ sprite = new PIXI.Sprite.fromImage(imagen.src);
+ sprite.width = 900;
+ sprite.height = 800;
+ app.stage.addChild(sprite)
+app.render()
+if(filter != null)
+ {
+  sprite.filters = [filter];
+}else
+{
+    alert("No se ha cargado un filtro");
+}
+fin = true;
 }
 function DescargarImagen(sprite, fileName) {
     app.renderer.extract.canvas(app.stage).toBlob(function(b){
@@ -114,21 +223,18 @@ function DescargarImagen(sprite, fileName) {
 function IsImage() {
       app.start(); 
     setImageVisible("image",false);
-const imagen =  document.getElementById("image");
-imagen.crossOrigin = 'anonymous'
- sprite = PIXI.Sprite.from(imagen);
- sprite.width = 900;
- sprite.height = 800;
-  if(filter != null)
- {
-  sprite.filters = [filter];
-}else
-{
-    alert("No se ha cargado un filtro");
-}
-app.stage.addChild(sprite)
-app.render()
-fin = true;
+imagen.crossOrigin = 'anonymous';
+     if(sprite!=null)
+     {
+
+        sprite.filter = null;
+        sprite.parent.removeChild(sprite);
+        sprite.destroy({children:true, texture:true, baseTexture:true});
+      
+     }  
+
+PIXI.loader.load(onload);
+  
 }
 
 function IsVideo()
@@ -173,6 +279,56 @@ fin = true;
 }
 
 function LoadFilter()
+{
+   
+    if(word == null)
+    {
+  alert("No hay ningun filtro para ser cargado")
+    }else
+    {
+    app.stop();
+ PIXI.loader.add(imagen.src);
+ PIXI.loader.add('shader', './Shaders/' + word).load(onLoaded);
+
+// Handle the load completed
+function onLoaded(loader, res) {
+    // Create the new filter, arguments: (vertexShader, framentSource)
+    filter = new PIXI.Filter(null, res.shader.data);
+    // Add the filter
+  let width = app.renderer.view.width;
+  let height = app.renderer.view.height;
+    filter.uniforms.u_resolution= [width, height];
+    if(animate==false)
+    {
+    filter.uniforms.u_time = [89.0];  
+}
+
+
+
+}
+}
+}
+function IsImageAnimate() {
+      app.start(); 
+    setImageVisible("image",false);
+const imagen =  document.getElementById("image");
+imagen.crossOrigin = 'anonymous'
+ sprite = PIXI.Sprite.from(imagen);
+ sprite.width = 900;
+ sprite.height = 800;
+  if(filter != null)
+ {
+  sprite.filters = [filter];
+}else
+{
+    alert("No se ha cargado un filtro");
+}
+app.stage.addChild(sprite)
+app.render()
+fin = true;
+}
+
+function LoadAnimateFilter()
 {
     if(word == null)
     {
