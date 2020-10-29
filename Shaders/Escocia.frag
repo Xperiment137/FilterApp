@@ -74,6 +74,6 @@ void main() {
     // feature points
     float dd = length( c.yz );
     color += vec3(1.)*(1.0-smoothstep( 0.0, 0.04, dd));
-
-    gl_FragColor = fg * vec4(color,1.0);
+      fg*=vec4(color,1.0);
+    gl_FragColor = fg;
 }
