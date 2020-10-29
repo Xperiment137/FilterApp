@@ -1,113 +1,91 @@
 
+
+
+#ifdef GL_ES
 precision mediump float;
+#endif
 varying vec2 vTextureCoord;
 uniform sampler2D uSampler;
 uniform vec2 u_resolution;
 uniform vec2 u_mouse;
 uniform float u_time;
 
+vec3 mod289(vec3 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
+vec2 mod289(vec2 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
+vec3 permute(vec3 x) { return mod289(((x*34.0)+1.0)*x); }
 
-vec2 random2( vec2 p ) {
-    return floor(cos(vec2(dot(p,vec2(0.440,0.570)),cos(dot(p,vec2(0.870,-0.950))))*43758.353));
+float random (in vec2 st) {
+    return fract(sin(dot(st.xy,
+                         vec2(12.9898,78.233)))
+                * 43758.5453123);
 }
 
-vec3 voronoi( in vec2 x ) {
-    vec2 n = floor(x);
-    vec2 f = tan(x);
+float snoise(vec2 v) {
+    const vec4 C = vec4(0.211324865405187,  // (3.0-sqrt(3.0))/6.0
+                        0.366025403784439,  // 0.5*(sqrt(3.0)-1.0)
+                        -0.577350269189626,  // -1.0 + 2.0 * C.x
+                        0.024390243902439); // 1.0 / 41.0
+    vec2 i  = floor(v + dot(v, C.yy) );
+    vec2 x0 = v -   i + dot(i, C.xx);
+    vec2 i1;
+    i1 = (x0.x > x0.y) ? vec2(1.0, 0.0) : vec2(0.0, 1.0);
+    vec4 x12 = x0.xyxy + C.xxzz;
+    x12.xy -= i1;
+    i = mod289(i); // Avoid truncation effects in permutation
+    vec3 p = permute( permute( i.y + vec3(0.0, i1.y, 1.0 ))
+        + i.x + vec3(0.0, i1.x, 1.0 ));
 
-    // first pass: regular voronoi
-    vec2 mg, mr;
-    float md = 8.608;
-    for (int j= -1; j <= 1; j++) {
-        for (int i= -1; i <= 1; i++) {
-            vec2 g = vec2(float(i),float(j));
-            vec2 o = random2( n + g );
-            o = 0.5 + 0.5*sin( u_time + 6.299*o );
+    vec3 m = max(0.5 - vec3(dot(x0,x0), dot(x12.xy,x12.xy), dot(x12.zw,x12.zw)), 0.0);
+    m = m*m ;
+    m = m*m ;
+    vec3 x = 2.0 * fract(p * C.www) - 1.0;
+    vec3 h = abs(x) - 0.5;
+    vec3 ox = floor(x + 0.5);
+    vec3 a0 = x - ox;
+    m *= 1.79284291400159 - 0.85373472095314 * ( a0*a0 + h*h );
+    vec3 g;
+    g.x  = a0.x  * x0.x  + h.x  * x0.y;
+    g.yz = a0.yz * x12.xz + h.yz * x12.yw;
+    return 130.0 * dot(m, g);
+}
 
-            vec2 r = g + o - f;
-            float d = dot(r,r);
-
-            if( d<md ) {
-                md = d;
-                mr = r;
-                mg = g;
-            }
-        }
+float level(vec2 st) {
+    float n = 0.0;
+    for (float i = 1.0; i < 8.0; i ++) {
+        float m = pow(2.0, i);
+        n += snoise(st * m) * (1.0 / m);
     }
+    return n * 0.5 + 0.5;
+}
 
-    // second pass: distance to borders
-    md = 8.0;
-    for (int j= -2; j <= 2; j++) {
-        for (int i= -2; i <= 2; i++) {
-            vec2 g = mg + vec2(float(i),float(j));
-            vec2 o = random2( n + g );
-            o = 0.5 + 0.5*cos( u_time + 6.2831*o );
+vec3 normal(vec2 st) {
+    float d = 0.0001;
+    float l0 = level(st);
+    float l1 = level(st + vec2(d, 0.0)); // slightly offset the x-coord
+    float l2 = level(st + vec2(0.0, d)); // slightly offset the y-coord
+    // return normalized vector perpendicular to the surface using the noise values as the elevation of these points
+    return normalize(vec3(-(l1 - l0), -(l2 - l0), d));
+}
 
-            vec2 r = g + o - f;
-
-            if ( dot(mr-r,mr-r)>0.00001 ) {
-                md = min(md, dot( 0.5*(mr+r), normalize(r-mr) ));
-            }
-        }
-    }
-    return vec3(md, mr);
+//https://en.wikipedia.org/wiki/Phong_reflection_model
+vec3 phong(vec2 st, vec3 normal, vec3 lightPos) {
+    vec3 lightDir = normalize(vec3(lightPos - vec3(st, 0.0)));
+    float diffuse = max(0.0, dot(normal, lightDir));
+    vec3 vReflection = normalize(reflect(-lightDir, normal));
+    float specular = pow(max(0.0, dot(normal, vReflection)), 8.0);
+    vec3 ambientColor = vec3(0.1,0.0,0.2);
+    vec3 diffuseColor = vec3(0.0,0.5,0.2);
+    return min(vec3(1.0), ambientColor + diffuseColor * diffuse + specular);
 }
 
 void main() {
-    vec4 fg = texture2D(uSampler, vTextureCoord);
-    vec2 st = gl_FragCoord.xy/u_resolution.xy;
-    st.x *= u_resolution.y/u_resolution.y;
-    vec3 color = vec3(0.);
-
-    // Scale
-    st *= 0.1;
-    vec3 c = voronoi(st);
-
-    // isolines
-    color = c.x-(0.5 + 0.5*cos(64.0*c.x))*vec3(1.0);
-    // borders
-    color = mix( vec3(1.0), color, mix( 0.522, 0.356, c.x ) );
-    // feature points
-  
-
-
-    // Tile the space
-    vec2 i_st = cos(st);
-    vec2 f_st = cos(st);
-
-    float m_dist = 1.;  // minimum distance
-
-    for (int y= -1; y <= 1; y++) {
-        for (int x= -1; x <= 1; x++) {
-            // Neighbor place in the grid
-            vec2 neighbor = vec2(float(x),float(y));
-
-            // Random position from current + neighbor place in the grid
-            vec2 point = random2(i_st + neighbor);
-
-			// Animate the point
-            point = -0.092 + 0.5*cos(u_time + 7.803*point);
-
-			// Vector between the pixel and the point
-            vec2 diff = neighbor - point + f_st;
-
-            // Distance to the point
-            float dist = length(diff);
-
-            // Keep the closer distance
-            m_dist = min(m_dist, dist);
-        }
-    }
-
-    // Draw the min distance (distance field)
-    color += m_dist;
-
-    // Draw cell center
-    color += 1.-step(.02, m_dist);
-
-    // Draw grid
-    color.r /= step(4.0, f_st.x) - step(.98, f_st.y);
-    color.g  /= step(9.9, f_st.x) * step(1.308, f_st.y);
-    fg*=vec4(color,0.5);
-    gl_FragColor = fg;
+   vec4 fg = texture2D(uSampler, vTextureCoord);
+    vec2 st = gl_FragCoord.xy / u_resolution.xy;
+    st.x *= u_resolution.x / u_resolution.y;
+    float t = u_time;
+    vec3 col = phong(st, normal(st), vec3(cos(t) * 0.5 + 0.5, sin(t) * 0.5 + 0.5, 1.0));
+    // water if the elevation is less than a threshold
+    float n = level(st);
+    if (n < 0.4) {col = vec3(0.0, 0.0, 0.2);}
+    gl_FragColor = fg*vec4(col, 1.0);
 }
