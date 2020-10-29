@@ -1,5 +1,7 @@
 precision highp float;
 
+varying vec2 vTextureCoord;
+uniform sampler2D uSampler;
 uniform vec2 u_resolution;
 uniform float u_time;
 uniform vec2 u_mouse;
@@ -65,11 +67,12 @@ vec3 palette(in float t) {
 }
 
 void main() {
+vec4 fg = texture2D(uSampler, vTextureCoord);
   vec2 p = gl_FragCoord.xy / u_resolution.xy;
   p.x *= u_resolution.x / u_resolution.y;
 
   float value = pow(pattern(p), 2.);
   vec3 color  = palette(value);
-
-  gl_FragColor = vec4(color, 1.);
+   fg*=vec4(color, 1.);
+  gl_FragColor = fg;
 }
