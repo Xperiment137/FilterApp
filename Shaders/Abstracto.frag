@@ -42,15 +42,15 @@ float fbm (in vec2 p) {
 float pattern(in vec2 p) {
   vec2 offset = vec2(-.5);
 
-  vec2 aPos = vec2(sin(time * .05), sin(time * .1)) * 6.;
+  vec2 aPos = vec2(sin(u_time * .05), sin(u_time * .1)) * 6.;
   vec2 aScale = vec2(3.);
   float a = fbm(p * aScale + aPos);
 
-  vec2 bPos = vec2(sin(time * .1), sin(time * .1)) * 1.;
+  vec2 bPos = vec2(sin(u_time * .1), sin(u_time * .1)) * 1.;
   vec2 bScale = vec2(.5);
   float b = fbm((p + a) * bScale + bPos);
 
-  vec2 cPos = vec2(-.6, -.5) + vec2(sin(-time * .01), sin(time * .1)) * 2.;
+  vec2 cPos = vec2(-.6, -.5) + vec2(sin(-u_time * .01), sin(u_time * .1)) * 2.;
   vec2 cScale = vec2(2.);
   float c = fbm((p + b) * cScale + cPos);
 
@@ -67,8 +67,8 @@ vec3 palette(in float t) {
 
 void main() {
  vec4 fg = texture2D(uSampler, vTextureCoord);
-  vec2 p = gl_FragCoord.xy / resolution.xy;
-  p.x *= resolution.x / resolution.y;
+  vec2 p = gl_FragCoord.xy / u_resolution.xy;
+  p.x *= u_resolution.x / u_resolution.y;
 
   float value = pow(pattern(p), 2.);
   vec3 color  = palette(value);
