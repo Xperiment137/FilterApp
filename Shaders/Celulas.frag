@@ -54,7 +54,7 @@ vec3 voronoi( in vec2 x ) {
 }
 
 void main() {
-   vec4 fg = texture2D(uSampler, vTextureCoord);
+    vec4 fg = texture2D(uSampler, vTextureCoord);
     vec2 st = gl_FragCoord.xy/u_resolution.xy;
     st.x *= u_resolution.y/u_resolution.y;
     vec3 color = vec3(0.);
