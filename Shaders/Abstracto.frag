@@ -1,6 +1,6 @@
 precision highp float;
-
-
+varying vec2 vTextureCoord;
+uniform sampler2D uSampler;
 uniform float u_time;
 uniform vec2 u_mouse;
 uniform vec2 u_resolution;
@@ -8,7 +8,7 @@ uniform vec2 u_resolution;
 
 
 void main( void ) {
-	
+	   vec4 fg = texture2D(uSampler, vTextureCoord);
 	vec3 color = vec3(abs(sin(u_time)), 0.1, abs(fract(u_time * 2.0)));
 
 	vec2 p = (gl_FragCoord.xy * 2.0 - u_resolution) / min(u_resolution.x, u_resolution.y);
@@ -24,6 +24,6 @@ void main( void ) {
 	
 	
 	vec3 destColor = vec3(l1) * color + l2 + l3 ;
-	
-	gl_FragColor = vec4(vec3(destColor), 1.0 );
+	fg*=vec4(vec3(destColor), 1.0 );
+	gl_FragColor = fg;
 }
