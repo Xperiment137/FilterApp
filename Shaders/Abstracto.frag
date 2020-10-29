@@ -1,9 +1,9 @@
 precision highp float;
 varying vec2 vTextureCoord;
 uniform sampler2D uSampler;
-uniform vec2 resolution;
-uniform float time;
-uniform vec2 mouse;
+uniform vec2 u_resolution;
+uniform float u_time;
+uniform vec2 u_mouse;
 
 float random (in vec2 point) {
   return fract(100.0 * sin(point.x + fract(100.0 * sin(point.y)))); // http://www.matteo-basei.it/noise
