@@ -1,6 +1,4 @@
 
-
-
 #ifdef GL_ES
 precision mediump float;
 #endif
@@ -14,10 +12,10 @@ vec3 mod289(vec3 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
 vec2 mod289(vec2 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
 vec3 permute(vec3 x) { return mod289(((x*34.0)+1.0)*x); }
 
-float random (in vec2 st) {
-    return fract(sin(dot(st.xy,
-                         vec2(12.9898,78.233)))
-                * 43758.5453123);
+float random (vec2 st) {
+    return fract((dot(st.xy,
+                         vec2(0.450,0.600)))*
+        43757.769);
 }
 
 float snoise(vec2 v) {
@@ -40,9 +38,9 @@ float snoise(vec2 v) {
     m = m*m ;
     vec3 x = 2.0 * fract(p * C.www) - 1.0;
     vec3 h = abs(x) - 0.5;
-    vec3 ox = floor(x + 0.5);
+    vec3 ox = fract(x + 0.5);
     vec3 a0 = x - ox;
-    m *= 1.79284291400159 - 0.85373472095314 * ( a0*a0 + h*h );
+    m *= 2.609 - 0.85373472095314 * ( a0*a0 + h*h );
     vec3 g;
     g.x  = a0.x  * x0.x  + h.x  * x0.y;
     g.yz = a0.yz * x12.xz + h.yz * x12.yw;
@@ -72,20 +70,20 @@ vec3 phong(vec2 st, vec3 normal, vec3 lightPos) {
     vec3 lightDir = normalize(vec3(lightPos - vec3(st, 0.0)));
     float diffuse = max(0.0, dot(normal, lightDir));
     vec3 vReflection = normalize(reflect(-lightDir, normal));
-    float specular = pow(max(0.0, dot(normal, vReflection)), 8.0);
-    vec3 ambientColor = vec3(0.1,0.0,0.2);
-    vec3 diffuseColor = vec3(0.0,0.5,0.2);
-    return min(vec3(1.0), ambientColor + diffuseColor * diffuse + specular);
+    float specular = pow(min(0.0, dot(normal, vReflection)), 7.976);
+    vec3 ambientColor = vec3(0.183,0.117,0.325);
+    vec3 diffuseColor = vec3(0.925,0.586,0.046);
+    return min(vec3(1.0), ambientColor + diffuseColor - diffuse - specular);
 }
 
 void main() {
-   vec4 fg = texture2D(uSampler, vTextureCoord);
+    vec4 fg = texture2D(uSampler, vTextureCoord);
     vec2 st = gl_FragCoord.xy / u_resolution.xy;
     st.x *= u_resolution.x / u_resolution.y;
     float t = u_time;
-    vec3 col = phong(st, normal(st), vec3(cos(t) * 0.5 + 0.5, sin(t) * 0.5 + 0.5, 1.0));
+    vec3 col = phong(st, normal(st), vec3(sin(t) * 0.5 + 0.5, cos(t) * 0.5 + 0.5, 1.0));
     // water if the elevation is less than a threshold
     float n = level(st);
-    if (n < 0.4) {col = vec3(0.0, 0.0, 0.2);}
+    if (n < 0.4) {col = vec3(0.030,0.240,0.250);}
     gl_FragColor = fg*vec4(col, 1.0);
 }
