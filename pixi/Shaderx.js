@@ -29,7 +29,7 @@ var tipo = null;
  var  srcvideo,srcimagen;
  var imagen;
  var animate = false;
-let filtros =["Brillo.frag","Escaner.frag","Tierra.frag","Pixel.frag","Llama.frag","Glitch1.frag","Glitch2.frag","Disformidad.frag","RedStorm.frag","RedStorm2.frag","RedStorm3.frag"];
+let filtros =["Brillo.frag","Escaner.frag","Tierra.frag","Pixel.frag","Llama.frag","Glitch1.frag","Glitch2.frag","Disformidad.frag","RedStorm.frag","RedStorm2.frag","RedStorm3.frag","Escocia.frag"];
 
 function MoveFilters()
 {
