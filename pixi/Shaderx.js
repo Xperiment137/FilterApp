@@ -1,5 +1,5 @@
 
-
+//
 let app = new PIXI.Application({ 
         width:1000,
         height:1000,
