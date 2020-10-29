@@ -108,6 +108,6 @@ void main() {
     // Draw grid
     color.r /= step(4.0, f_st.x) - step(.98, f_st.y);
     color.g  /= step(9.9, f_st.x) * step(1.308, f_st.y);
-    fg*=vec4(color,1.0);
+    fg*=vec4(color,0.5);
     gl_FragColor = fg;
 }
