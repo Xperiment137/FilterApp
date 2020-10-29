@@ -1,7 +1,8 @@
 #ifdef GL_ES
 precision mediump float;
 #endif
-
+varying vec2 vTextureCoord;
+uniform sampler2D uSampler;
 uniform vec2 u_resolution;
 uniform float u_time;
 vec2 random2( vec2 p ) {
@@ -9,6 +10,7 @@ vec2 random2( vec2 p ) {
 }
 void main() {
     vec2 st = gl_FragCoord.xy/u_resolution.xy;
+   vec4 fg = texture2D(uSampler, vTextureCoord);
     st.x *= u_resolution.x/u_resolution.y;
 
     vec3 color = vec3(.0);
@@ -48,5 +50,5 @@ void main() {
     // Draw point center
     color +=1.0-step(.02, m_dist);
 
-    gl_FragColor = vec4(color,1.0);
+    gl_FragColor = fg*vec4(color,1.0);
 }
