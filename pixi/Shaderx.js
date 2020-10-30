@@ -81,7 +81,7 @@ modo();
    
     if(sprite!=null)
         {
-         mio = false;
+       
         PIXI.loader.reset();
         app.stage.filters = null;
            delete PIXI.loader.resources['shader'];
@@ -90,6 +90,7 @@ modo();
                
                 LoadAnimateFilter();
            }else{
+          mio = false;
         LoadFilter();
     }
         if(tipo.includes("video"))
