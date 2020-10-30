@@ -1,8 +1,8 @@
 
 
 let app = new PIXI.Application({ 
-        width:1500,
-        height:1500,
+        width:1000,
+        height:1000,
         antialias: false, 
         transparent: true, 
         forceCanvas: false,
@@ -17,8 +17,8 @@ let app = new PIXI.Application({
  PIXI.RENDERER_TYPE["WEBGL"];
 function resize() {app.renderer.view.style.position = 'absolute';app.renderer.view.style.left = ((window.innerWidth - app.renderer.width) >> 1) + 'px';app.renderer.view.style.top = ((window.innerHeight - app.renderer.height) >> 1) + 'px';} resize();
 window.addEventListener('resize', resize);
-app.renderer.view.width =1500;
-app.renderer.view.height =1500;
+app.renderer.view.width =1000;
+app.renderer.view.height =1000;
 document.body.appendChild(app.view);
 var sprite=null;
 var fin = false;
