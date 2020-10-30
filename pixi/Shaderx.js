@@ -81,6 +81,7 @@ modo();
    
     if(sprite!=null)
         {
+         mio = false;
         PIXI.loader.reset();
         app.stage.filters = null;
            delete PIXI.loader.resources['shader'];
