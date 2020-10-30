@@ -1,5 +1,5 @@
 
-//
+
 let app = new PIXI.Application({ 
         width:1000,
         height:1000,
@@ -29,6 +29,8 @@ var tipo = null;
  var  srcvideo,srcimagen;
  var imagen;
  var animate = false;
+ var shader = null;
+ var mio = false;
 let filtros =["Brillo.frag","Escaner.frag","Tierra.frag","Pixel.frag","Llama.frag","Glitch1.frag","Glitch2.frag","Disformidad.frag","RedStorm.frag","RedStorm2.frag","RedStorm3.frag","Celulas.frag","Abstracto.frag","Bruma.frag"];
 
 function MoveFilters()
@@ -36,6 +38,23 @@ function MoveFilters()
     document.getElementById("filtro").innerHTML = "Filtro:" + filtros[i];
     word = filtros[i];
 }
+
+
+
+
+ function openFile(input) {
+    mio = true;
+    var input = event.target;
+
+    var reader = new FileReader();
+    reader.onload = function(){
+      shader = reader.result;
+  document.getElementById("etiqueta").innerHTML = input.files[0].name;
+    };
+    reader.readAsText(input.files[0]);
+  };
+
+
 
 function Animados()
 {
@@ -289,10 +308,17 @@ function LoadFilter()
  PIXI.loader.add(imagen.src);
  PIXI.loader.add('shader', './Shaders/' + word).load(onLoaded);
 
+
 // Handle the load completed
 function onLoaded(loader, res) {
     // Create the new filter, arguments: (vertexShader, framentSource)
-    filter = new PIXI.Filter(null, res.shader.data);
+if(mio)
+ {
+ filter = new PIXI.Filter(null, shader);
+ }else{
+filter = new PIXI.Filter(null, res.shader.data);
+}
+    
     // Add the filter
   let width = app.renderer.view.width;
   let height = app.renderer.view.height;
@@ -340,7 +366,12 @@ function LoadAnimateFilter()
 // Handle the load completed
 function onLoaded(loader, res) {
     // Create the new filter, arguments: (vertexShader, framentSource)
-    filter = new PIXI.Filter(null, res.shader.data);
+if(mio)
+ {
+ filter = new PIXI.Filter(null, shader);
+ }else{
+filter = new PIXI.Filter(null, res.shader.data);
+}
     // Add the filter
   let width = app.renderer.view.width;
   let height = app.renderer.view.height;
