@@ -341,8 +341,8 @@ function IsImageAnimate() {
 const imagen =  document.getElementById("image");
 imagen.crossOrigin = 'anonymous'
  sprite = PIXI.Sprite.from(imagen);
- sprite.width = 1000;
- sprite.height = 1000;
+ sprite.width = 900;
+ sprite.height = 800;
   if(filter != null)
  {
  app.stage.filters = [filter];
