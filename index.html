@@ -36,6 +36,22 @@ img{
 video{
     position: relative;
 }
+.btn-outlined.btn-primary {
+  color: #FFFF;
+}
+.btn-outlined.btn-primary:active, .btn-outlined.btn-positive:active, .btn-outlined.btn-negative:active {
+  color:#FFFF;
+
+}
+.btn-block {
+  display: block;
+  width: 100%;
+  background:#ff0000;
+  margin-bottom: 10px;
+  font-size: 10px;
+  font-family: Arial, Helvetica, sans-serif;
+  text-align: left;
+}
 
 </style>
 </head>
@@ -49,13 +65,26 @@ video{
     <p id="filtro">Pulsa el boton para ver los filtros</p>
    <input id="next"   type="button" value="Siguiente filtro" name="next" onclick="Next()" />
      <input id="load"   type="button" value="On/Off filtros animados" name="next" onclick="Animados()" />
+     
+
+<label for="fileUpload" id="etiqueta" class="btn btn-primary btn-block btn-outlined">Click aqui para subir tu archivo .frag</label>
+<input type="file" id="fileUpload"style="display: none;"accept=".frag" onchange="openFile(this);"/>
+
+
+
       <p id="mod"></p>
    <p id="filtro">Instrucciones: </p>
-<ol>
   <p>Para usar los filtros:</p>
   <p>Carga una foto <p>
   <p>Usa siguiente para ver los filtros</p>
-</ol>
+   <p>Para los filtros personalizados use estas variables:</p>
+  <p>varying vec2 vTextureCoord;</p>
+<p>uniform sampler2D uSampler;</p>
+<p>uniform vec2 u_resolution;</p>
+<p>uniform vec2 u_mouse;</p>
+<p>uniform float u_time;</p>
+  <p>Si cargas un shader propio y quieres pasar a filtros animados, dale a "Siguiente filtro" para que se cargue la animacion</p>
+
            
  </form>
 
