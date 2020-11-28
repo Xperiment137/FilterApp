@@ -13,11 +13,11 @@ void main()
    vec2 p = gl_FragCoord.xy/u_resolution.xy;
 
     // Time varying pixel color
-    vec3 col = 0.5 + 0.5*cos(u_time+p.xyx+vec3(0,2,4));
-    col += cos(p.x * atan(u_time / 5.0) * 50.0) + sin(random(p.y) * -cos(u_time / 15.0) *10.0);
-    col += tan(p.x * sin(u_time / 5.0) * 50.0) + cos(random(p.y) * tan(u_time / 15.0) *10.0);
+    vec3 col = 0.5 + 0.5*cos(u_time+p.xyx+vec3(0,1,1));
+    col += cos(p.x * atan(u_time / 2.0) * 50.0) + sin(random(p.y) * -cos(u_time / 15.0) *10.0);
+    col += tan(p.x * sin(u_time / 2.0) * 50.0) + cos(random(p.y) * tan(u_time / 15.0) *10.0);
 
-    col *= vec3(0.1)*mod(u_time,random(p.x));
+    col *= vec3(0.9)*mod(u_time,random(p.x));
 
     // Output to screen
     gl_FragColor = fg*vec4(col,1.0);
