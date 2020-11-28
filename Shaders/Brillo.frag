@@ -25,12 +25,12 @@ void main() {
     vec2 st = gl_FragCoord.xy/u_resolution.xy;
 
     st *= 0.9; // Scale the coordinate system by 10
-    vec2 ipos = floor(st);  // get the integer coords
+    vec2 ipos = fract(st);  // get the integer coords
     vec2 fpos = ceil(st);  // get the fractional coords
 
     vec3 color2 = vec3(0.0);
 
-       float pct = cos(u_time)/9.0;
+       float pct = tan(u_time)/3.1416;
 
     
     
