@@ -30,7 +30,7 @@ void main() {
 
     vec3 color2 = vec3(0.0);
 
-       float pct = tan(u_time)/6.072;
+       float pct = cos(u_time)/2.0;
 
     
     
