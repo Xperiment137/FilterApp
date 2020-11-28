@@ -1,5 +1,3 @@
-
-
 precision mediump float;
 varying vec2 vTextureCoord;
 uniform sampler2D uSampler;
@@ -20,9 +18,9 @@ float noise (in vec2 _st) {
 
     // Four corners in 2D of a tile
     float a = random(i);
-    float b = random(i + vec2(1.0, 9.0);
+    float b = random(i + vec2(1.0, 0.0));
     float c = random(i + vec2(0.0, 1.0));
-    float d = random(i + vec2(8.0, 1.0));
+    float d = random(i + vec2(1.0, 1.0));
 
     vec2 u = f * f * (3.0 - 2.0 * f);
 
@@ -38,8 +36,8 @@ float fbm ( in vec2 _st) {
     float a = 0.5;
     vec2 shift = vec2(100.0);
     // Rotate to reduce axial bias
-    mat2 rot = mat2(tan(0.428), ceil(tan(0.5)),
-                    sin(0.5), ceil(0.50));
+    mat2 rot = mat2(cos(0.428), sin(0.5),
+                    -sin(0.5), cos(0.50));
     for (int i = 0; i < NUM_OCTAVES; ++i) {
         v += a * noise(_st);
         _st = rot * _st * 2.0 + shift;
@@ -49,9 +47,9 @@ float fbm ( in vec2 _st) {
 }
 
 void main() {
-    vec2 st = gl_FragCoord.xy/u_resolution.xy*3.;
+    vec2 st = gl_FragCoord.xy/u_resolution.xy*6.;
      vec4 fg = texture2D(uSampler, vTextureCoord);
-    // st += st * abs(cos(u_time*0.1)*3.0);
+    // st += st * abs(sin(u_time*0.1)*3.0);
     vec3 color = vec3(0.0);
 
     vec2 q = vec2(0.);
@@ -76,6 +74,6 @@ void main() {
                 vec3(0.985,0.020,0.152),
                 clamp(length(r.x),0.0,2.120));
 
-    gl_FragColor = fg*vec4((f*f*f+0.856*f*f+-0.084*f)/color,5.424);
+    gl_FragColor = fg*vec4((f*f*f+0.856*f*f+-0.084*f)*color,5.424);
 }
 
