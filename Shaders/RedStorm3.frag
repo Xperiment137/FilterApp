@@ -20,7 +20,7 @@ float noise (in vec2 _st) {
 
     // Four corners in 2D of a tile
     float a = random(i);
-    float b = random(i + vec2(1.0, 0.0));
+    float b = random(i + clamp(vec2(1.0, 0.0),0.1,1.0);
     float c = random(i + vec2(0.0, 1.0));
     float d = random(i + vec2(1.0, 1.0));
 
