@@ -24,13 +24,13 @@ void main() {
     vec4 fg = texture2D(uSampler, vTextureCoord);
     vec2 st = gl_FragCoord.xy/u_resolution.xy;
 
-    st *= 0.5; // Scale the coordinate system by 10
+    st *= 0.9; // Scale the coordinate system by 10
     vec2 ipos = fract(st);  // get the integer coords
     vec2 fpos = fract(st);  // get the fractional coords
 
     vec3 color2 = vec3(0.0);
 
-       float pct = cos(u_time)/2.0;
+       float pct = cos(u_time)/9.0;
 
     
     
