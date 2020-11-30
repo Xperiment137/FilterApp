@@ -36,7 +36,10 @@ var slide = document.getElementById('slide');
 
 
 slide.onchange = function() {
+        if(animate)
+        {
  time = this.value/1000;
+        }
 }
 
 function MoveFilters()
@@ -134,6 +137,7 @@ modo();
     if(animate == false)
     {
 aux = "Normal";
+ time = 0;
     }else{
 aux = "Animado";
         }
