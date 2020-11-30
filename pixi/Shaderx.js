@@ -140,6 +140,7 @@ aux = "Normal";
  time = 0;
     }else{
 aux = "Animado";
+time = this.value/1000;
         }
     
      document.getElementById("mod").innerHTML = "Modo Filtros:" + aux;
