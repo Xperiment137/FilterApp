@@ -1,5 +1,3 @@
-//
-
 let app = new PIXI.Application({ 
         width:1000,
         height:1000,
@@ -15,7 +13,7 @@ let app = new PIXI.Application({
     );
  PIXI.BLEND_MODES["MULTIPLY"];
  PIXI.RENDERER_TYPE["WEBGL"];
-function resize() {app.renderer.view.style.position = 'absolute';app.renderer.view.style.left = ((window.innerWidth - app.renderer.width) >> 1) + 'px';app.renderer.view.style.top = ((window.innerHeight - app.renderer.height) >> 1) + 'px';} resize();
+function resize() {app.renderer.view.style.position = 'absolute';app.renderer.view.style.left = ((window.innerWidth - app.renderer.width) >> 0.5) + 'px';app.renderer.view.style.top = ((window.innerHeight - app.renderer.height) >> 2) + 'px';} resize();
 window.addEventListener('resize', resize);
 app.renderer.view.width =1000;
 app.renderer.view.height =1000;
@@ -31,7 +29,15 @@ var tipo = null;
  var animate = false;
  var shader = null;
  var mio = false;
+ var time = 0;
 let filtros =["Brillo.frag","Escaner.frag","Tierra.frag","Pixel.frag","Llama.frag","Glitch1.frag","Glitch2.frag","Disformidad.frag","RedStorm.frag","RedStorm2.frag","RedStorm3.frag","Celulas.frag","Abstracto.frag","Bruma.frag"];
+
+var slide = document.getElementById('slide');
+
+
+slide.onchange = function() {
+ time = this.value/1000;
+}
 
 function MoveFilters()
 {
@@ -81,7 +87,7 @@ modo();
    
     if(sprite!=null)
         {
-       
+            
         PIXI.loader.reset();
         app.stage.filters = null;
            delete PIXI.loader.resources['shader'];
@@ -90,7 +96,7 @@ modo();
                
                 LoadAnimateFilter();
            }else{
-          mio = false;
+            mio = false;
         LoadFilter();
     }
         if(tipo.includes("video"))
@@ -231,6 +237,7 @@ if(filter != null)
 fin = true;
 }
 function DescargarImagen(sprite, fileName) {
+    
     app.renderer.extract.canvas(app.stage).toBlob(function(b){
         var a = document.createElement('a');
         document.body.append(a);
@@ -380,7 +387,7 @@ filter = new PIXI.Filter(null, res.shader.data);
     filter.uniforms.u_resolution= [width, height];
     filter.uniforms.u_time = [1.0];  
     app.ticker.add(function(delta) {
-    filter.uniforms.u_time[0] += 0.05;  // Change time to animate the transition of red 
+    filter.uniforms.u_time[0] += time;  // Change time to animate the transition of red 
 });
 
 }
@@ -408,6 +415,10 @@ filter = new PIXI.Filter(null, res.shader.data);
 };
 
     app.start();
+
+
+
+
 
 
 
