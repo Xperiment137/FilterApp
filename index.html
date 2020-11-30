@@ -11,18 +11,14 @@ body {
    font: normal 10px Verdana, Arial, sans-serif;
 }
 
-.canvas {
-  display:block;
-  align-self: left;
-  position: 'absolute',
-    left: '34px'
-}
+
 
 form{
    margin-left: 0 auto;
-   width: 100px;
    background: black;
    color: white;
+  width: 100px;
+  height: 100%;
 
 }
 #fileInput{
@@ -53,6 +49,7 @@ video{
   text-align: left;
 }
 
+
 </style>
 </head>
   <script src="pixi/pixi.min.js"></script>    
@@ -69,6 +66,10 @@ video{
 
 <label for="fileUpload" id="etiqueta" class="btn btn-primary btn-block btn-outlined">Click aqui para subir tu archivo .frag</label>
 <input type="file" id="fileUpload"style="display: none;"accept=".frag" onchange="openFile(this);"/>
+<div class="slidecontainer">
+  <p>Velocidad:</p>
+  <input id="slide" type="range" min="1" max="100" value="50">
+</div>
 
 
 
