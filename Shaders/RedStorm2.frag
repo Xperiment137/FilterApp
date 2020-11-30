@@ -42,16 +42,16 @@ float fbm ( in vec2 _st) {
     for (int i = 0; i < NUM_OCTAVES; ++i) {
         v += a * noise(_st);
         _st = rot * _st * 2.0 + shift;
-        a *= 0.5;
+        a *= 0.9;
     }
     return v;
 }
 
 void main() {
-    vec2 st = gl_FragCoord.xy/u_resolution.xy*3.;
+    vec2 st = gl_FragCoord.xy/u_resolution.xy*6.;
      vec4 fg = texture2D(uSampler, vTextureCoord);
-    // st += st * abs(sin(u_time*0.1)*3.0);
-    vec3 color = vec3(0.0);
+    // st += st * abs(sin(u_time*0.1)*8.0);
+    vec3 color = vec3(3.0);
 
     vec2 q = vec2(0.);
     q.x = fbm( st + 0.920*u_time);
@@ -75,5 +75,5 @@ void main() {
                 vec3(0.985,0.020,0.152),
                 clamp(length(r.x),0.0,2.120));
 
-    gl_FragColor = fg*vec4((f*f*f+0.856*f*f+-0.084*f)*color,5.424);
+    gl_FragColor = fg*normalize(vec4((f*f*f+0.856*f*f+-0.084*f)*color,5.424));
 }
