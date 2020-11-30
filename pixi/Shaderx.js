@@ -71,9 +71,11 @@ function Animados()
     if(animate)
     {
         animate=false;
+            time = 0;
         alert("Filtros animados desactivados");
     }else{
         animate=true;
+        time = slide.value/1000;
         alert("Filtros animados activados");
         if(sprite != null)
         {
@@ -138,10 +140,9 @@ modo();
     if(animate == false)
     {
 aux = "Normal";
- time = 0;
     }else{
 aux = "Animado";
-time = slide.value/1000;
+
         }
     
      document.getElementById("mod").innerHTML = "Modo Filtros:" + aux;
