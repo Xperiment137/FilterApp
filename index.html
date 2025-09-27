@@ -1,38 +1,36 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="utf-8" />
-<title>FilterApp</title>
+<meta charset="UTF-8">
+<title>FilterApp Modern</title>
+<script src="pixi/pixi.min.js"></script>
 <style>
-  /* Reset básico */
-  * { box-sizing: border-box; margin: 0; padding: 0; }
+  * { box-sizing: border-box; margin:0; padding:0; }
 
   body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background: #121212;
-    color: #ffffff;
+    color: #fff;
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: flex-start;
-    min-height: 100vh;
     padding: 20px;
   }
+
+  h1 { margin-bottom: 20px; }
 
   form {
     background: #1e1e1e;
     padding: 20px;
     border-radius: 12px;
-    width: 350px;
+    width: 380px;
     display: flex;
     flex-direction: column;
     gap: 15px;
     box-shadow: 0 4px 12px rgba(0,0,0,0.5);
   }
 
-  input[type="file"] {
-    display: none;
-  }
+  input[type="file"] { display: none; }
 
   label.btn-upload {
     display: block;
@@ -46,9 +44,7 @@
     transition: 0.3s;
   }
 
-  label.btn-upload:hover {
-    background: #7b39ff;
-  }
+  label.btn-upload:hover { background: #7b39ff; }
 
   input[type="button"] {
     padding: 10px;
@@ -61,38 +57,12 @@
     transition: 0.3s;
   }
 
-  input[type="button"]:hover {
-    background: #00bfa5;
-  }
+  input[type="button"]:hover { background: #00bfa5; }
 
-  #slide {
-    width: 100%;
-  }
+  .slidecontainer { display: flex; flex-direction: column; gap: 5px; }
+  #slide { width: 100%; }
 
-  img, video {
-    margin-top: 20px;
-    max-width: 90%;
-    border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.5);
-  }
-
-  .instructions {
-    font-size: 0.9rem;
-    line-height: 1.4;
-    color: #bbbbbb;
-  }
-
-  .slidecontainer {
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-  }
-
-  h1 {
-    margin-bottom: 20px;
-    color: #ffffff;
-    text-align: center;
-  }
+  #image { margin-top: 20px; max-width: 90%; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.5); display: none; }
 </style>
 </head>
 <body>
@@ -100,41 +70,180 @@
 <h1>FilterApp Modern</h1>
 
 <form>
-  <label for="fileUpload" class="btn-upload">Sube tu archivo .frag</label>
+  <!-- Subir imagen/video -->
+  <label for="uploadImage" class="btn-upload">Sube tu imagen/video</label>
+  <input type="file" id="uploadImage" accept="image/*,video/*" />
+
+  <!-- Subir shader propio -->
+  <label for="fileUpload" class="btn-upload">Sube tu shader (.frag)</label>
   <input type="file" id="fileUpload" accept=".frag" onchange="openFile(this);" />
 
-  <input id="descargar" type="button" value="Guardar" onclick="Finalizar()" />
-  <input id="next" type="button" value="Siguiente filtro" onclick="Next()" />
-  <input id="load" type="button" value="On/Off filtros animados" onclick="Animados()" />
+  <!-- Botones principales -->
+  <input type="button" id="btnGuardar" value="Guardar" />
+  <input type="button" id="btnNext" value="Siguiente filtro" />
+  <input type="button" id="btnAnimados" value="On/Off filtros animados" />
 
+  <!-- Slider velocidad -->
   <div class="slidecontainer">
     <label for="slide">Velocidad:</label>
-    <input id="slide" type="range" min="1" max="100" value="50">
+    <input type="range" id="slide" min="1" max="100" value="50">
   </div>
 
-  <div class="instructions">
-    <p>Pulsa el botón para ver los filtros.</p>
-    <p>Para usar los filtros personalizados usa estas variables:</p>
-    <pre>
-varying vec2 vTextureCoord;
-uniform sampler2D uSampler;
-uniform vec2 u_resolution;
-uniform vec2 u_mouse;
-uniform float u_time;
-    </pre>
-    <p>Si cargas un shader propio y quieres pasar a filtros animados, dale a "Siguiente filtro".</p>
-  </div>
+  <!-- Información -->
+  <p id="filtro">Filtro: </p>
+  <p id="mod">Modo Filtros: </p>
 </form>
 
 <img id="image" src="#" alt="Tu imagen" />
 
-<script src="pixi/pixi.min.js"></script>
-<script>
-let type = "WebGL";
-if(!PIXI.utils.isWebGLSupported()){ type = "canvas"; }
-PIXI.utils.sayHello(type);
-</script>
 <script src="pixi/Shaderx.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  // Inicialización Pixi
+  const app = new PIXI.Application({ 
+    width:1000, height:1000, antialias:false, transparent:true, autoResize:true, legacy:true 
+  });
+  document.body.appendChild(app.view);
+
+  // Variables globales
+  let sprite=null, fin=false, tipo=null, i=0, filter=null;
+  let srcvideo, imagen, animate=false, shader=null, mio=false, time=0;
+  const filtros = ["Brillo.frag","Escaner.frag","Tierra.frag","Pixel.frag","Llama.frag",
+                   "Glitch1.frag","Glitch2.frag","Disformidad.frag","RedStorm.frag",
+                   "RedStorm2.frag","RedStorm3.frag","Celulas.frag","Abstracto.frag","Bruma.frag"];
+  let word = filtros[0];
+
+  // Control de velocidad
+  document.getElementById('slide').onchange = function() {
+    if(animate) time = this.value/1000;
+  };
+
+  function MoveFilters() { document.getElementById("filtro").innerText = "Filtro: " + filtros[i]; word = filtros[i]; }
+  function modo() { document.getElementById("mod").innerText = "Modo Filtros: " + (animate ? "Animado" : "Normal"); }
+
+  // Cargar shaders propios
+  window.openFile = function(input) {
+    mio = true;
+    const reader = new FileReader();
+    reader.onload = function() { shader = reader.result; document.querySelector('label[for="fileUpload"]').innerText = input.files[0].name; };
+    reader.readAsText(input.files[0]);
+  };
+
+  // Subida de imagen/video
+  document.getElementById("uploadImage").addEventListener("change", e => {
+    const input = e.target;
+    if(input.files && input.files[0]) {
+      const reader = new FileReader();
+      tipo = input.files[0].type;
+
+      if(tipo.includes("video")) { 
+        reader.onload = e => { srcvideo = e.target.result; NextFiltro(); };
+        reader.readAsDataURL(input.files[0]);
+      } else if(tipo.includes("image")) {
+        reader.onload = e => { 
+          imagen = document.getElementById("image");
+          imagen.src = e.target.result;
+          imagen.style.display = 'block';
+          NextFiltro();
+        };
+        reader.readAsDataURL(input.files[0]);
+      }
+    }
+  });
+
+  // Cambiar filtro
+  document.getElementById("btnNext").addEventListener("click", () => {
+    i = (i+1) % filtros.length; MoveFilters(); if(tipo) NextFiltro();
+  });
+
+  function NextFiltro() {
+    if(sprite) { app.stage.filters = null; }
+    if(animate) LoadAnimateFilter(); else LoadFilter();
+    if(tipo?.includes("video")) IsVideo(); else if(tipo?.includes("image")) IsImage();
+  }
+
+  function LoadFilter() {
+    if(!word) return alert("No hay filtro cargado");
+    PIXI.Loader.shared.reset();
+    PIXI.Loader.shared.add('shader', './Shaders/' + word).load((loader, res) => {
+      filter = mio ? new PIXI.Filter(null, shader) : new PIXI.Filter(null, res.shader.data);
+      filter.uniforms.u_resolution = [app.renderer.view.width, app.renderer.view.height];
+      if(!animate) filter.uniforms.u_time = [89.0];
+      if(sprite) app.stage.filters = [filter];
+    });
+  }
+
+  function LoadAnimateFilter() {
+    if(!word) return alert("No hay filtro cargado");
+    PIXI.Loader.shared.reset();
+    PIXI.Loader.shared.add('shader', './Shaders/' + word).load((loader, res) => {
+      filter = mio ? new PIXI.Filter(null, shader) : new PIXI.Filter(null, res.shader.data);
+      filter.uniforms.u_resolution = [app.renderer.view.width, app.renderer.view.height];
+      filter.uniforms.u_time = [1.0];
+      if(sprite) app.stage.filters = [filter];
+      app.ticker.add(delta => { if(filter) filter.uniforms.u_time[0] += time; });
+    });
+  }
+
+  function IsImage() {
+    app.start();
+    imagen = document.getElementById("image");
+    imagen.crossOrigin = 'anonymous';
+    if(sprite) sprite.destroy({children:true, texture:true, baseTexture:true});
+    sprite = PIXI.Sprite.from(imagen.src);
+    sprite.width = 900; sprite.height = 800;
+    app.stage.addChild(sprite);
+    if(filter) app.stage.filters = [filter];
+    fin = true;
+  }
+
+  function IsVideo() {
+    app.start();
+    const video = document.createElement('video');
+    video.crossOrigin = 'anonymous';
+    video.src = srcvideo;
+    video.autoplay = true;
+    video.loop = true;
+    sprite = PIXI.Sprite.from(video);
+    sprite.width = 900; sprite.height = 800;
+    app.stage.addChild(sprite);
+    if(filter) app.stage.filters = [filter];
+    fin = true;
+  }
+
+  // Descargar imagen
+  function DescargarImagen(sprite, fileName) {
+    app.renderer.extract.canvas(app.stage).toBlob(b => {
+      const a = document.createElement('a');
+      document.body.appendChild(a);
+      a.download = fileName;
+      a.href = URL.createObjectURL(b);
+      a.click(); a.remove();
+    }, 'image/png');
+  }
+
+  // Botones animados y guardar
+  document.getElementById("btnAnimados").addEventListener("click", () => {
+    animate = !animate;
+    time = animate ? document.getElementById("slide").value/1000 : 0;
+    alert("Filtros animados " + (animate ? "activados" : "desactivados"));
+    modo();
+    NextFiltro();
+  });
+
+  document.getElementById("btnGuardar").addEventListener("click", () => {
+    if(fin) {
+      if(tipo.includes("video")) alert("Descarga de vídeo aún no disponible");
+      else if(tipo.includes("image")) DescargarImagen(sprite,"imagen.png");
+    } else alert("No hay datos para guardar");
+  });
+
+  // Inicializar
+  MoveFilters();
+  modo();
+  app.start();
+});
+</script>
 
 </body>
 </html>
